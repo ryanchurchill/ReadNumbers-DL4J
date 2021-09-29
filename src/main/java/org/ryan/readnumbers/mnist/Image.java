@@ -16,6 +16,10 @@ public class Image {
     // from the file, we get a range of 0-255.
     double[][] pixels = new double[PIXEL_LENGTH][PIXEL_LENGTH];
 
+    public void setActualDigit(int actualDigit) {
+        this.actualDigit = actualDigit;
+    }
+
     /* 0-9 AKA label - what digit does this image actually represent? */
     int actualDigit = -1;
 
@@ -88,6 +92,7 @@ public class Image {
                 } else {
                     sb.append(' ');
                 }
+                sb.append(' '); // pad with a space to try and spread the image out
             }
         }
         return sb.toString();

@@ -10,7 +10,9 @@ public class App {
         List<Image> trainingImages = GetMnistImages.getTrainingImages();
 //        new App().test();
 
-        System.out.println(trainingImages.get(0));
+        for(Image ti : trainingImages) {
+            System.out.println(ti);
+        }
 
     }
 }
