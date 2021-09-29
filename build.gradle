@@ -1,0 +1,13 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+mainClassName = 'org.ryan.readnumbers.App'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "org.nd4j:nd4j-native-platform:0.9.1"
+    implementation "org.deeplearning4j:deeplearning4j-core:0.9.1"
+}
