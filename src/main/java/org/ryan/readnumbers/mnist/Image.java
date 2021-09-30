@@ -14,10 +14,14 @@ public class Image {
 
     // X by Y (column by row)
     // from the file, we get a range of 0-255.
-    double[][] pixels = new double[PIXEL_LENGTH][PIXEL_LENGTH];
+    int[][] pixels = new int[PIXEL_LENGTH][PIXEL_LENGTH];
 
     public void setActualDigit(int actualDigit) {
         this.actualDigit = actualDigit;
+    }
+
+    public int getActualDigit() {
+        return actualDigit;
     }
 
     /* 0-9 AKA label - what digit does this image actually represent? */
@@ -59,6 +63,27 @@ public class Image {
                 yPos++;
             }
         }
+    }
+
+    /**
+     * Original bytes of mnist file had 1d, row-wise list of pixels
+     *
+     * To encapsulate/visualize/draw an image, we stored this in a 2d (x,y) array
+     *
+     * Now we're giving a way to get the pixel at the 1D index (AKA the original index from the bytes), since this
+     * is what we need for the network.
+     *
+     * TODO: I haven't tested if we really got the x and y right - it probably doesn't matter for the sake of the
+     * network, but it's worth knowing.
+     *
+     * @param i
+     * @return
+     */
+    public int getPixelAt1DIndex(int i)
+    {
+        int x = i % PIXEL_LENGTH; // remainder
+        int y = i / PIXEL_LENGTH; // remainder is thrown away
+        return pixels[x][y];
     }
 
     public String toString()
