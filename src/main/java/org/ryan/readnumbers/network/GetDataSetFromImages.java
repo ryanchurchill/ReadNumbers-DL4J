@@ -16,11 +16,11 @@ public class GetDataSetFromImages {
     private int numImages;
     private int numLabels; // assumption is that label is 0, 1, ..., 9
 
-    public GetDataSetFromImages(List<Image> images, int _numLabels) {
+    public GetDataSetFromImages(List<Image> images) {
         this.images = images;
         this.numPixels = Image.PIXEL_LENGTH * Image.PIXEL_LENGTH;
         this.numImages = images.size();
-        this.numLabels = _numLabels;
+        this.numLabels = Image.NUM_LABELS;
     }
 
     public DataSet getDataSet()

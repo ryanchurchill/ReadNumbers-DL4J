@@ -9,6 +9,7 @@ package org.ryan.readnumbers.mnist;
  */
 public class Image {
     public final static int PIXEL_LENGTH = 28;
+    public final static int NUM_LABELS = 10; // 0, 1, ..., 9
     final static int ORIGINAL_MIN = 0;
     final static int ORIGINAL_MAX = 255;
 
