@@ -9,11 +9,14 @@ import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.conf.layers.OutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.SplitTestAndTrain;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
+import org.nd4j.linalg.dataset.api.preprocessor.NormalizerMinMaxScaler;
 import org.nd4j.linalg.dataset.api.preprocessor.NormalizerStandardize;
+import org.nd4j.linalg.learning.config.Nesterovs;
 import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
 import org.ryan.readnumbers.mnist.GetMnistImages;
 import org.ryan.readnumbers.mnist.Image;
@@ -34,10 +37,18 @@ public class App {
 
         DataSet allData = new GetDataSetFromImages(trainingImages).getDataSet();
 
+
+
         // normalize
-        DataNormalization normalizer = new NormalizerStandardize();
+        DataNormalization normalizer = new NormalizerMinMaxScaler();
         normalizer.fit(allData);
         normalizer.transform(allData);
+
+        // testing
+//        Image image = trainingImages.get(1);
+//        System.out.println(image);
+//        System.out.println(allData.get(1));
+        // end testing
 
         // mnist actually has a separate file with 10k test images, but we'll just split the 60k training images instead
         SplitTestAndTrain testAndTrain = allData.splitTestAndTrain(0.65);
@@ -46,33 +57,41 @@ public class App {
 
         System.out.println("Initializing Network...");
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
-                .seed(123)
-                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-                .iterations(1)
-                .learningRate(0.006)
-                .updater(Updater.NESTEROVS).momentum(0.9)
-                .regularization(true).l2(1e-4)
+                .seed(123) //include a random seed for reproducibility
+                // use stochastic gradient descent as an optimization algorithm
+                .updater(new Nesterovs(0.006, 0.9))
+                .l2(1e-4)
                 .list()
+                // hidden layer:
                 .layer(0, new DenseLayer.Builder()
-                        .nIn(Image.PIXEL_LENGTH * Image.PIXEL_LENGTH) // Number of input datapoints.
-                        .nOut(1000) // Number of output datapoints.
-                        .activation("relu") // Activation function.
-                        .weightInit(WeightInit.XAVIER) // Weight initialization.
+                        .nIn(Image.PIXEL_LENGTH * Image.PIXEL_LENGTH)
+                        .nOut(1000) // hidden layer size
+                        .activation(Activation.RELU)
+                        .weightInit(WeightInit.XAVIER)
                         .build())
+
+                // output layer:
                 .layer(1, new OutputLayer.Builder(LossFunction.NEGATIVELOGLIKELIHOOD)
                         .nIn(1000)
                         .nOut(Image.NUM_LABELS)
-                        .activation("softmax")
+                        .activation(Activation.SOFTMAX)
                         .weightInit(WeightInit.XAVIER)
                         .build())
-                .pretrain(false).backprop(true)
+                .pretrain(false)
+                .backprop(true) // use backpropagation to adjust weights
                 .build();
 
         // create and train the network
         System.out.println("Training beginning...");
+        int numEpochs = 15;
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
-        model.fit(trainingData);
+
+        for( int i=0; i<numEpochs; i++ ){
+            System.out.printf("epoch {}....", i);
+            model.fit(trainingData);
+        }
+//        model.fit(trainingData);
         System.out.println("Training done");
 
         // test the network
