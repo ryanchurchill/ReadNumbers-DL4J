@@ -61,6 +61,7 @@ public class App {
                 // use stochastic gradient descent as an optimization algorithm
                 .updater(new Nesterovs(0.006, 0.9))
                 .l2(1e-4)
+                .regularization(true)
                 .list()
                 // hidden layer:
                 .layer(0, new DenseLayer.Builder()
@@ -83,23 +84,22 @@ public class App {
 
         // create and train the network
         System.out.println("Training beginning...");
-        int numEpochs = 15;
+        int numEpochs = 100;
         MultiLayerNetwork model = new MultiLayerNetwork(conf);
         model.init();
 
         for( int i=0; i<numEpochs; i++ ){
-            System.out.printf("epoch {}....", i);
+            System.out.println("epoch " + i);
             model.fit(trainingData);
+
+            // test the network
+            INDArray output = model.output(testData.getFeatureMatrix());
+            Evaluation eval = new Evaluation(10);
+            eval.eval(testData.getLabels(), output);
+
+            System.out.println(eval.stats());
         }
 //        model.fit(trainingData);
-        System.out.println("Training done");
-
-        // test the network
-        System.out.println("Testing beginning...");
-        INDArray output = model.output(testData.getFeatureMatrix());
-        Evaluation eval = new Evaluation(10);
-        eval.eval(testData.getLabels(), output);
-
-        System.out.println(eval.stats());
+//        System.out.println("Training done");
     }
 }
